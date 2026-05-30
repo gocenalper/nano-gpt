@@ -1,2 +1,2 @@
 # nano-gpt
-Andrej karpathy's nano-got lecture codes
+Andrej karpathy's nano-gpt lecture codes
