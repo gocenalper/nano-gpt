@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-nano-gpt teknik dokümantasyon PDF üreteci.
+nano-gpt technical documentation PDF generator.
 
-Bu script, gpt_scratch.ipynb içindeki karakter seviyeli GPT (Transformer)
-implementasyonunu görsel olarak anlatan çok sayfalı, şık bir PDF üretir.
-Tamamen matplotlib ile çizilir (harici PDF aracı gerekmez).
+This script produces a multi-page, polished PDF that visually explains the
+character-level GPT (Transformer) implementation inside gpt_scratch.ipynb.
+Everything is drawn with matplotlib (no external PDF tooling required).
 
-Çalıştırma:
+Run:
     python docs/generate_pdf.py
-Çıktı:
-    docs/nano-gpt-dokumantasyon.pdf
+Output:
+    docs/nano-gpt-documentation.pdf
 """
 
 from __future__ import annotations
@@ -25,19 +25,19 @@ from matplotlib.patches import FancyBboxPatch, FancyArrowPatch, Circle, Rectangl
 from matplotlib.lines import Line2D
 
 # ---------------------------------------------------------------------------
-# Tema / renk paleti  (modern, koyu lacivert + canlı vurgular)
+# Theme / color palette  (modern dark navy + vivid accents)
 # ---------------------------------------------------------------------------
-BG        = "#0d1117"   # arka plan (GitHub dark)
+BG        = "#0d1117"   # background (GitHub dark)
 PANEL     = "#161b22"   # panel
-INK       = "#e6edf3"   # ana metin
-MUTED     = "#8b949e"   # ikincil metin
-ACCENT    = "#58a6ff"   # mavi vurgu
-ACCENT2   = "#bc8cff"   # mor vurgu
-GREEN     = "#3fb950"   # yeşil
-ORANGE    = "#f0883e"   # turuncu
-PINK      = "#f778ba"   # pembe
-YELLOW    = "#e3b341"   # sarı
-GRID      = "#30363d"   # ince çizgi
+INK       = "#e6edf3"   # primary text
+MUTED     = "#8b949e"   # secondary text
+ACCENT    = "#58a6ff"   # blue accent
+ACCENT2   = "#bc8cff"   # purple accent
+GREEN     = "#3fb950"   # green
+ORANGE    = "#f0883e"   # orange
+PINK      = "#f778ba"   # pink
+YELLOW    = "#e3b341"   # yellow
+GRID      = "#30363d"   # thin line
 
 plt.rcParams.update({
     "font.family": "DejaVu Sans",
@@ -51,7 +51,7 @@ PAGE_W, PAGE_H = 8.27, 11.69   # A4 (inch)
 
 
 def new_page():
-    """Tam sayfa, eksensiz bir tuval döndürür (0-100 koordinat sistemi)."""
+    """Return a full-page, axis-free canvas (0-100 coordinate system)."""
     fig = plt.figure(figsize=(PAGE_W, PAGE_H), facecolor=BG)
     ax = fig.add_axes([0, 0, 1, 1])
     ax.set_xlim(0, 100)
@@ -64,7 +64,7 @@ def new_page():
 def box(ax, x, y, w, h, text="", fc=PANEL, ec=GRID, tc=INK, fs=10,
         weight="normal", lw=1.4, rounding=0.025, ha="center", va="center",
         align="center", family="DejaVu Sans"):
-    """Yuvarlatılmış köşeli kutu + ortalanmış metin."""
+    """Rounded-corner box + centered text."""
     patch = FancyBboxPatch(
         (x, y), w, h,
         boxstyle=f"round,pad=0.02,rounding_size={rounding*100}",
@@ -96,7 +96,7 @@ def pill(ax, x, y, text, fc=ACCENT, tc=BG, fs=8.5, w=None):
 
 
 def header(ax, kicker, title, num):
-    """Sayfa başlığı bandı."""
+    """Page title band."""
     ax.add_patch(Rectangle((0, 92), 100, 8, color=PANEL, zorder=0))
     ax.add_patch(Rectangle((0, 92), 1.4, 8, color=ACCENT, zorder=1))
     ax.text(5, 96.6, kicker, fontsize=9, color=ACCENT, weight="bold")
@@ -107,9 +107,9 @@ def header(ax, kicker, title, num):
 
 def footer(ax, page):
     ax.add_line(Line2D([5, 95], [4, 4], color=GRID, lw=1))
-    ax.text(5, 2.4, "nano-gpt  ·  Karakter Seviyeli GPT", fontsize=8,
+    ax.text(5, 2.4, "nano-gpt  ·  Character-Level GPT", fontsize=8,
             color=MUTED)
-    ax.text(95, 2.4, f"sayfa {page}", fontsize=8, color=MUTED, ha="right")
+    ax.text(95, 2.4, f"page {page}", fontsize=8, color=MUTED, ha="right")
 
 
 def bullet(ax, x, y, title, body, color=ACCENT, tw=88):
@@ -122,52 +122,52 @@ def bullet(ax, x, y, title, body, color=ACCENT, tw=88):
 
 
 # ===========================================================================
-# SAYFA 1 — KAPAK
+# PAGE 1 — COVER
 # ===========================================================================
 def page_cover(pdf):
     fig, ax = new_page()
 
-    # dekoratif arka plan blokları
+    # decorative background blobs
     ax.add_patch(Rectangle((0, 0), 100, 100, color=BG, zorder=0))
     for i, c in enumerate([ACCENT, ACCENT2, PINK]):
         ax.add_patch(Circle((78 + i * 4, 80 - i * 3), 16 - i * 3,
                      color=c, alpha=0.08, zorder=0))
 
-    # üst etiket
-    ax.text(10, 86, "T E K N İ K   D O K Ü M A N T A S Y O N", fontsize=11,
+    # top label
+    ax.text(10, 86, "T E C H N I C A L   D O C U M E N T A T I O N", fontsize=11,
             color=ACCENT, weight="bold")
-    ax.add_line(Line2D([10, 38], [84.5, 84.5], color=ACCENT, lw=2))
+    ax.add_line(Line2D([10, 47], [84.5, 84.5], color=ACCENT, lw=2))
 
-    # başlık
+    # title
     ax.text(10, 74, "nano-gpt", fontsize=58, color=INK, weight="bold")
-    ax.text(10, 66, "Sıfırdan Karakter Seviyeli\nGPT (Transformer)", fontsize=22,
+    ax.text(10, 66, "A Character-Level GPT\n(Transformer) From Scratch", fontsize=22,
             color=MUTED, weight="bold", linespacing=1.2, va="top")
 
-    # alt açıklama
+    # description
     ax.text(10, 53,
-            "Andrej Karpathy'nin \"Let's build GPT\" dersinin\n"
-            "PyTorch ile birebir, bol Türkçe yorumlu uygulaması.\n"
-            "Self-attention, multi-head, residual bloklar ve\n"
-            "decoder-only bir dil modelinin tüm parçaları.",
+            "A faithful PyTorch implementation of\n"
+            "Andrej Karpathy's \"Let's build GPT\" lecture.\n"
+            "Self-attention, multi-head, residual blocks and\n"
+            "every part of a decoder-only language model.",
             fontsize=12, color=INK, linespacing=1.6, va="top")
 
-    # teknoloji rozetleri
+    # technology pills
     x = 10
     for txt, c in [("PyTorch", ORANGE), ("Transformer", ACCENT),
                    ("Self-Attention", ACCENT2), ("Char-level", GREEN),
                    ("Weights & Biases", YELLOW)]:
         x = pill(ax, x, 40, txt, fc=c) + 1.5
 
-    # alt bilgi kutusu — mimari özeti
+    # bottom info box — architecture summary
     box(ax, 10, 13, 80, 22, "", fc=PANEL, ec=GRID, rounding=0.04)
-    ax.text(14, 31, "Bir Bakışta Mimari", fontsize=12, color=ACCENT,
+    ax.text(14, 31, "Architecture at a Glance", fontsize=12, color=ACCENT,
             weight="bold")
     specs = [
-        ("Veri kümesi", "Tiny Shakespeare (~1.1 MB metin)"),
-        ("Tokenizer", "Karakter seviyeli  ·  vocab ≈ 65"),
-        ("Model", "Decoder-only Transformer  ·  6 blok  ·  8 head"),
-        ("Gömme boyutu", "n_embed = 256  ·  block_size = 256"),
-        ("Eğitim", "AdamW + Cosine LR  ·  Early Stopping  ·  W&B"),
+        ("Dataset", "Tiny Shakespeare (~1.1 MB text)"),
+        ("Tokenizer", "Character-level  ·  vocab ≈ 65"),
+        ("Model", "Decoder-only Transformer  ·  6 blocks  ·  8 heads"),
+        ("Embedding size", "n_embed = 256  ·  block_size = 256"),
+        ("Training", "AdamW + Cosine LR  ·  Early Stopping  ·  W&B"),
     ]
     yy = 27
     for k, v in specs:
@@ -183,31 +183,26 @@ def page_cover(pdf):
 
 
 # ===========================================================================
-# SAYFA 2 — UÇTAN UCA AKIŞ (PIPELINE)
+# PAGE 2 — END-TO-END PIPELINE
 # ===========================================================================
 def page_pipeline(pdf):
     fig, ax = new_page()
-    header(ax, "GENEL BAKIŞ", "Uçtan Uca Veri Akışı", 1)
+    header(ax, "OVERVIEW", "End-to-End Data Flow", 1)
 
     ax.text(5, 88,
-            "Ham metinden üretilen yeni metne kadar tüm boru hattı. Her kutu, "
-            "notebook'taki\nbir fonksiyon veya modüle karşılık gelir.",
+            "The full pipeline, from raw text to freshly generated text. "
+            "Each box maps to\na function or module in the notebook.",
             fontsize=10, color=MUTED, va="top", linespacing=1.5)
 
     stages = [
         ("Tiny\nShakespeare", "download_dataset()", ORANGE),
         ("Tokenizer\n(stoi / itos)", "build_tokenizer()", PINK),
-        ("Train / Val\ntensörleri", "make_splits()", YELLOW),
+        ("Train / Val\ntensors", "make_splits()", YELLOW),
         ("Batch\n(B, T)", "get_batch()", GREEN),
-        ("GPT\nModeli", "BigramLanguageModel", ACCENT),
-        ("Üretilen\nMetin", "model.generate()", ACCENT2),
+        ("GPT\nModel", "BigramLanguageModel", ACCENT),
+        ("Generated\nText", "model.generate()", ACCENT2),
     ]
-    y = 70
-    cx = 16
     centers = []
-    for i, (title, sub, c) in enumerate(stages):
-        cy = y - (i % 2) * 0  # tek sıra
-    # dikey akış: 2 sütun zigzag yerine düz dikey liste daha okunur
     y0 = 78
     for i, (title, sub, c) in enumerate(stages):
         yy = y0 - i * 11.5
@@ -215,19 +210,17 @@ def page_pipeline(pdf):
                   fs=11, weight="bold", lw=2.2)
         ax.text(52, yy + 0.6, sub, fontsize=10, color=c, weight="bold",
                 va="center", family="DejaVu Sans Mono")
-        # küçük açıklama
         descs = [
-            "Karpathy'nin char-rnn deposundan ~1.1 MB ham metin indirilir.",
-            "Her benzersiz karakter bir tam sayıya eşlenir (encode / decode).",
-            "Metin tek bir long tensöre çevrilir, %90 train / %10 val bölünür.",
-            "Rastgele başlangıçlardan (context, hedef) çiftleri çekilir.",
-            "Embedding → N× Transformer Blok → LayerNorm → lm_head.",
-            "Otoregresif örnekleme ile karakter karakter yeni metin üretilir.",
+            "Downloads ~1.1 MB of raw text from Karpathy's char-rnn repo.",
+            "Maps every unique character to an integer (encode / decode).",
+            "Converts text to a single long tensor, 90% train / 10% val.",
+            "Pulls (context, target) pairs from random starting points.",
+            "Embedding -> N x Transformer Block -> LayerNorm -> lm_head.",
+            "Autoregressive sampling generates new text character by character.",
         ]
         ax.text(52, yy - 2.4, descs[i], fontsize=8, color=MUTED, va="center")
         centers.append((ctr, c))
 
-    # dikey oklar
     for i in range(len(stages) - 1):
         y_top = 78 - i * 11.5 - 4
         y_bot = 78 - (i + 1) * 11.5 + 4
@@ -238,20 +231,19 @@ def page_pipeline(pdf):
 
 
 # ===========================================================================
-# SAYFA 3 — TOKENIZER & BATCH
+# PAGE 3 — TOKENIZER & BATCH
 # ===========================================================================
 def page_data(pdf):
     fig, ax = new_page()
-    header(ax, "VERİ KATMANI", "Tokenizer ve Batch Üretimi", 2)
+    header(ax, "DATA LAYER", "Tokenizer and Batch Construction", 2)
 
-    # --- Tokenizer bloğu ---
-    ax.text(5, 88, "1 · Karakter Seviyeli Tokenizer", fontsize=12,
+    # --- Tokenizer block ---
+    ax.text(5, 88, "1 · Character-Level Tokenizer", fontsize=12,
             color=ACCENT, weight="bold")
-    ax.text(5, 85, "BPE yerine her karakter tek bir id. Vocab küçük (~65), "
-            "embedding tablosu küçük, hata ayıklaması kolay.",
+    ax.text(5, 85, "Instead of BPE, each character is a single id. The vocab "
+            "is tiny (~65), the embedding table is small, debugging is easy.",
             fontsize=9, color=MUTED, va="top")
 
-    # "Hi" -> [20, 47] -> "Hi"
     chars = list("Hi!")
     ids = [20, 47, 2]
     bx = 10
@@ -272,44 +264,41 @@ def page_data(pdf):
         box(ax, bx, 76, 6, 6, ch, fc=PANEL, ec=PINK, fs=16, weight="bold")
         bx += 7
 
-    # --- Batch bloğu ---
-    ax.text(5, 67, "2 · get_batch  →  (context, hedef) çiftleri", fontsize=12,
+    # --- Batch block ---
+    ax.text(5, 67, "2 · get_batch  →  (context, target) pairs", fontsize=12,
             color=ACCENT, weight="bold")
     ax.text(5, 64,
-            "block_size uzunluğundaki bir x dilimi, 1 sağa kaymış y ile "
-            "eşleşir. Tek dilim, T adet\nbağımsız eğitim örneği taşır — "
-            "Transformer'ın paralel öğrenmesinin kaynağı budur.",
+            "A block_size-long x slice is paired with y, shifted one to the "
+            "right. A single slice\ncarries T independent training examples — "
+            "this is the source of the Transformer's parallel learning.",
             fontsize=9, color=MUTED, va="top", linespacing=1.5)
 
     seq = ['F', 'i', 'r', 's', 't', ' ', 'C', 'i']
-    # x satırı
     ax.text(8, 54, "x :", fontsize=11, color=GREEN, weight="bold", va="center")
     for j, ch in enumerate(seq[:-1]):
         box(ax, 13 + j * 9, 51, 8, 6, ch, fc=PANEL, ec=GREEN, fs=13,
             weight="bold")
-    # y satırı (kaymış)
     ax.text(8, 44, "y :", fontsize=11, color=ORANGE, weight="bold", va="center")
     for j, ch in enumerate(seq[1:]):
         box(ax, 13 + j * 9, 41, 8, 6, ch, fc=PANEL, ec=ORANGE, fs=13,
             weight="bold")
-    # eşleme okları
     for j in range(len(seq) - 1):
         arrow(ax, (17 + j * 9, 51), (17 + j * 9, 47), color=MUTED, lw=1.2,
               style="-|>")
 
     ax.text(50, 35,
-            "tahmin yönü:  x[:, t]  verildiğinde model  y[:, t]  'yi tahmin eder",
+            "prediction direction:  given  x[:, t]  the model predicts  y[:, t]",
             fontsize=8.5, color=MUTED, ha="center", style="italic")
 
-    # --- Shape kutusu ---
+    # --- Shape box ---
     box(ax, 10, 12, 80, 18, "", fc=PANEL, ec=GRID, rounding=0.04)
-    ax.text(14, 27, "Tensör Şekilleri", fontsize=11, color=ACCENT,
+    ax.text(14, 27, "Tensor Shapes", fontsize=11, color=ACCENT,
             weight="bold")
     rows = [
         ("x, y", "(B, T)", "B = batch_size, T = block_size"),
         ("token_embedding", "(B, T, C)", "C = n_embed"),
-        ("logits", "(B, T, vocab_size)", "her pozisyon için skor"),
-        ("loss", "skaler", "cross-entropy"),
+        ("logits", "(B, T, vocab_size)", "score for each position"),
+        ("loss", "scalar", "cross-entropy"),
     ]
     yy = 23
     for name, shape, note in rows:
@@ -325,22 +314,22 @@ def page_data(pdf):
 
 
 # ===========================================================================
-# SAYFA 4 — TÜM MODEL MİMARİSİ
+# PAGE 4 — FULL MODEL ARCHITECTURE
 # ===========================================================================
 def page_arch(pdf):
     fig, ax = new_page()
-    header(ax, "MİMARİ", "BigramLanguageModel — Üst Düzey Akış", 3)
+    header(ax, "ARCHITECTURE", "BigramLanguageModel — High-Level Flow", 3)
 
     cx = 30
     w = 36
     layers = [
-        ("idx  (B, T)", GRID, "girdi token id'leri"),
+        ("idx  (B, T)", GRID, "input token ids"),
         ("Token Embedding\n+ Position Embedding", PINK, "(B, T, 256)"),
         ("Dropout", MUTED, "tok_pos_dropout"),
-        ("Transformer Blok × 6", ACCENT, "kalbi burası →"),
+        ("Transformer Block × 6", ACCENT, "the heart →"),
         ("Final LayerNorm", YELLOW, "ln_f"),
         ("lm_head (Linear)", GREEN, "→ (B, T, vocab)"),
-        ("logits → softmax", ACCENT2, "olasılık dağılımı"),
+        ("logits → softmax", ACCENT2, "probability distribution"),
     ]
     y0 = 84
     gap = 11
@@ -357,8 +346,7 @@ def page_arch(pdf):
             arrow(ax, (cx + w / 2, y0 - (i - 1) * gap - h / 2),
                   (cx + w / 2, yy + h / 2), color=layers[i - 1][1], lw=2.2)
 
-    # blok detayına işaret eden not
-    box(ax, 4, 38, 20, 10, "Detay\nsonraki\nsayfada →", fc=BG, ec=ACCENT,
+    box(ax, 4, 38, 20, 10, "Detail on\nnext\npage →", fc=BG, ec=ACCENT,
         tc=ACCENT, fs=9, weight="bold", rounding=0.06)
     arrow(ax, (24, 43), (cx, 84 - 3 * gap), color=ACCENT, lw=1.6, ls="--")
 
@@ -367,47 +355,42 @@ def page_arch(pdf):
 
 
 # ===========================================================================
-# SAYFA 5 — TRANSFORMER BLOĞU
+# PAGE 5 — TRANSFORMER BLOCK
 # ===========================================================================
 def page_block(pdf):
     fig, ax = new_page()
-    header(ax, "MİMARİ", "Transformer Bloğu — Haberleşme + Hesaplama", 4)
+    header(ax, "ARCHITECTURE", "Transformer Block — Communicate + Compute", 4)
 
     ax.text(5, 88,
-            "Her blokta iki alt-katman vardır. Pre-LayerNorm uygulanır ve her "
-            "alt-katmanın\nçıktısı residual (artık) bağlantıyla girdiye "
-            "eklenir:  x = x + Dropout(SubLayer(LN(x))).",
+            "Each block has two sub-layers. Pre-LayerNorm is applied and the "
+            "output of each\nsub-layer is added back to the input via a "
+            "residual connection:  x = x + Dropout(SubLayer(LN(x))).",
             fontsize=9.5, color=MUTED, va="top", linespacing=1.5)
 
-    # giriş
-    box(ax, 38, 78, 24, 6, "girdi  x", fc=PANEL, ec=GRID, fs=11, weight="bold")
+    box(ax, 38, 78, 24, 6, "input  x", fc=PANEL, ec=GRID, fs=11, weight="bold")
 
-    # --- alt katman 1: MHA ---
     box(ax, 30, 66, 40, 6, "LayerNorm (ln1)", fc=PANEL, ec=YELLOW, fs=10)
     box(ax, 24, 55, 52, 7, "Multi-Head Self-Attention",
         fc="#1b2a3a", ec=ACCENT, fs=12, weight="bold", lw=2.6)
     box(ax, 38, 47, 24, 5, "Dropout", fc=PANEL, ec=MUTED, fs=9)
 
-    # residual + (1)
     res1 = box(ax, 44, 39, 12, 5, "(+)", fc=PANEL, ec=GREEN, tc=GREEN,
                fs=14, weight="bold")
 
-    # --- alt katman 2: FFN ---
     box(ax, 30, 30, 40, 5, "LayerNorm (ln2)", fc=PANEL, ec=YELLOW, fs=10)
     box(ax, 24, 18, 52, 8,
-        "Feed-Forward\nLinear(C→4C) · ReLU · Linear(4C→C)",
+        "Feed-Forward\nLinear(C->4C) · ReLU · Linear(4C->C)",
         fc="#2a1b3a", ec=ACCENT2, fs=10, weight="bold", lw=2.6)
     box(ax, 38, 11, 24, 4.5, "Dropout", fc=PANEL, ec=MUTED, fs=9)
     res2 = box(ax, 44, 5, 12, 4.5, "(+)", fc=PANEL, ec=GREEN, tc=GREEN,
                fs=14, weight="bold")
 
-    # ana dikey oklar
     seq_y = [(81, 72), (66, 62), (58.5, 52), (49.5, 44),
              (39, 35), (32.5, 26), (18, 15.5), (11, 9.5)]
     for top, bot in seq_y:
         arrow(ax, (50, top), (50, bot), color=INK, lw=1.8)
 
-    # residual atlama bağlantıları (sağdan)
+    # residual skip connections
     arrow(ax, (62, 80), (88, 80), color=GREEN, lw=2, style="-")
     arrow(ax, (88, 80), (88, 41.5), color=GREEN, lw=2, style="-")
     arrow(ax, (88, 41.5), (56, 41.5), color=GREEN, lw=2)
@@ -425,22 +408,20 @@ def page_block(pdf):
 
 
 # ===========================================================================
-# SAYFA 6 — SELF-ATTENTION HEAD
+# PAGE 6 — SELF-ATTENTION HEAD
 # ===========================================================================
 def page_attention(pdf):
     fig, ax = new_page()
-    header(ax, "MİMARİ", "Tek Bir Self-Attention Head", 5)
+    header(ax, "ARCHITECTURE", "A Single Self-Attention Head", 5)
 
     ax.text(5, 88,
-            "Her head, girdiyi üç projeksiyona ayırır: Query, Key, Value. "
-            "Skorlar ölçeklenir,\ncausal mask ile gelecek maskelenir, softmax "
-            "ile ağırlığa çevrilir ve Value'lar toplanır.",
+            "Each head splits the input into three projections: Query, Key, "
+            "Value. Scores are scaled,\nthe future is hidden with a causal "
+            "mask, softmax turns them into weights, Values are summed.",
             fontsize=9.5, color=MUTED, va="top", linespacing=1.5)
 
-    # girdi x
     box(ax, 6, 70, 16, 7, "x\n(B,T,C)", fc=PANEL, ec=GRID, fs=10, weight="bold")
 
-    # Q, K, V
     qkv = [("Query\nq = Wq·x", ACCENT, 80), ("Key\nk = Wk·x", PINK, 70),
            ("Value\nv = Wv·x", ORANGE, 60)]
     for txt, c, yy in qkv:
@@ -448,33 +429,28 @@ def page_attention(pdf):
             weight="bold", lw=2)
         arrow(ax, (22, 73.5), (30, yy), color=c, lw=1.8)
 
-    # q·kᵀ
-    box(ax, 56, 70, 18, 7, "skorlar\nq · kᵀ", fc=PANEL, ec=ACCENT2, fs=10,
+    box(ax, 56, 70, 18, 7, "scores\nq · kᵀ", fc=PANEL, ec=ACCENT2, fs=10,
         weight="bold", lw=2)
     arrow(ax, (48, 80), (56, 74.5), color=ACCENT)
     arrow(ax, (48, 70), (56, 72), color=PINK)
     ax.text(65, 66.5, "× (head_size)^-0.5", fontsize=8, color=MUTED,
             ha="center", style="italic")
 
-    # mask
     box(ax, 56, 56, 18, 6, "causal mask\n(tril)", fc=PANEL, ec=YELLOW, fs=9.5,
         weight="bold", lw=2)
     arrow(ax, (65, 70), (65, 62), color=ACCENT2)
 
-    # softmax
     box(ax, 56, 44, 18, 6, "softmax\n+ dropout", fc=PANEL, ec=GREEN, fs=9.5,
         weight="bold", lw=2)
     arrow(ax, (65, 56), (65, 50), color=YELLOW)
 
-    # wei @ v
-    box(ax, 56, 31, 18, 7, "çıktı\nwei · v", fc="#1b2a3a", ec=ACCENT, fs=11,
+    box(ax, 56, 31, 18, 7, "output\nwei · v", fc="#1b2a3a", ec=ACCENT, fs=11,
         weight="bold", lw=2.6)
     arrow(ax, (65, 44), (65, 38), color=GREEN)
-    arrow(ax, (39, 60), (56, 34.5), color=ORANGE, rad=-0.2)  # value -> output
+    arrow(ax, (39, 60), (56, 34.5), color=ORANGE, rad=-0.2)
 
-    # --- mask görseli (alt) ---
-    ax.text(5, 24, "Causal mask:  bir token yalnızca kendisini ve geçmişi "
-            "görebilir (gelecek = -∞)", fontsize=9.5, color=ACCENT,
+    ax.text(5, 24, "Causal mask:  a token may only see itself and the past "
+            "(future = -inf)", fontsize=9.5, color=ACCENT,
             weight="bold")
     n = 5
     gx, gy, cell = 12, 6, 3.0
@@ -492,8 +468,8 @@ def page_attention(pdf):
                     fontsize=8, color=(BG if allowed else MUTED),
                     weight="bold")
     ax.text(gx + n * cell + 3, gy + n * cell / 2,
-            "satır = sorgulayan pozisyon\nsütun = bakılan pozisyon\n\n"
-            "yeşil (1) = izinli\nkoyu (0) = maskeli",
+            "row = querying position\ncol = attended position\n\n"
+            "green (1) = allowed\ndark (0) = masked",
             fontsize=9, color=MUTED, va="center", linespacing=1.5)
 
     footer(ax, 6)
@@ -501,21 +477,20 @@ def page_attention(pdf):
 
 
 # ===========================================================================
-# SAYFA 7 — EĞİTİM DÖNGÜSÜ
+# PAGE 7 — TRAINING LOOP
 # ===========================================================================
 def page_training(pdf):
     fig, ax = new_page()
-    header(ax, "EĞİTİM", "Eğitim Döngüsü ve Hiperparametreler", 6)
+    header(ax, "TRAINING", "Training Loop and Hyperparameters", 6)
 
-    # döngü adımları (sol)
     steps = [
-        ("get_batch('train')", GREEN, "rastgele batch çek"),
-        ("logits, loss = model(x, y)", ACCENT, "ileri geçiş + CE loss"),
-        ("loss.backward()", ORANGE, "gradyanlar"),
-        ("optimizer.step()", PINK, "AdamW güncellemesi"),
-        ("scheduler.step()", ACCENT2, "Cosine LR azaltma"),
+        ("get_batch('train')", GREEN, "draw a random batch"),
+        ("logits, loss = model(x, y)", ACCENT, "forward pass + CE loss"),
+        ("loss.backward()", ORANGE, "gradients"),
+        ("optimizer.step()", PINK, "AdamW update"),
+        ("scheduler.step()", ACCENT2, "Cosine LR decay"),
     ]
-    ax.text(5, 88, "İterasyon Döngüsü", fontsize=12, color=ACCENT,
+    ax.text(5, 88, "Iteration Loop", fontsize=12, color=ACCENT,
             weight="bold")
     y0 = 82
     for i, (txt, c, note) in enumerate(steps):
@@ -526,23 +501,21 @@ def page_training(pdf):
         if i > 0:
             arrow(ax, (26, y0 - (i - 1) * 9 - 3), (26, yy + 3), color=c,
                   lw=1.8)
-    # geri döngü oku
     arrow(ax, (6, y0 - 4 * 9), (2.5, y0 - 4 * 9), color=MUTED, style="-",
           lw=1.5)
     arrow(ax, (2.5, y0 - 4 * 9), (2.5, y0), color=MUTED, style="-", lw=1.5)
     arrow(ax, (2.5, y0), (6, y0), color=MUTED, lw=1.5)
-    ax.text(1.2, y0 - 18, "tekrarla", fontsize=8, color=MUTED, rotation=90,
+    ax.text(1.2, y0 - 18, "repeat", fontsize=8, color=MUTED, rotation=90,
             va="center")
 
-    # değerlendirme + early stopping notu
     box(ax, 5, 24, 90, 12, "", fc=PANEL, ec=GRID, rounding=0.03)
-    ax.text(9, 33, "Düzenlileştirme & İzleme", fontsize=11, color=ACCENT,
+    ax.text(9, 33, "Regularization & Monitoring", fontsize=11, color=ACCENT,
             weight="bold")
     notes = [
-        ("estimate_loss", "her 500 adımda train/val loss tahmini (eval modu)"),
-        ("Early Stopping", "val loss 5 değerlendirme boyunca düşmezse durur"),
-        ("Cosine LR", "lr 5e-4 → 1e-5, yumuşak iniş"),
-        ("Weights & Biases", "tüm metrikler canlı loglanır"),
+        ("estimate_loss", "estimates train/val loss every 500 steps (eval mode)"),
+        ("Early Stopping", "stops if val loss stalls for 5 evaluations"),
+        ("Cosine LR", "lr 5e-4 -> 1e-5, smooth decay"),
+        ("Weights & Biases", "all metrics logged live"),
     ]
     yy = 30
     for k, v in notes:
@@ -551,14 +524,12 @@ def page_training(pdf):
         ax.text(34, yy, v, fontsize=9, color=MUTED)
         yy -= 2.6
 
-    # hiperparametre tablosu
     box(ax, 5, 6, 90, 14, "", fc=PANEL, ec=ACCENT, rounding=0.03, lw=1.6)
-    ax.text(9, 17.5, "HERO RUN v4 — Konfigürasyon", fontsize=11, color=ACCENT,
+    ax.text(9, 17.5, "HERO RUN v4 — Configuration", fontsize=11, color=ACCENT,
             weight="bold")
     hp = [("block_size", "256"), ("batch_size", "64"), ("n_embed", "256"),
           ("n_head", "8"), ("n_layer", "6"), ("dropout", "0.2"),
           ("lr", "5e-4"), ("epochs", "10000"), ("weight_decay", "1e-3")]
-    col = 0
     for i, (k, v) in enumerate(hp):
         xx = 9 + (i % 3) * 29
         yy = 13.5 - (i // 3) * 3.2
@@ -571,25 +542,25 @@ def page_training(pdf):
 
 
 # ===========================================================================
-# SAYFA 8 — ÜRETİM + ÖZET
+# PAGE 8 — GENERATION + SUMMARY
 # ===========================================================================
 def page_generate(pdf):
     fig, ax = new_page()
-    header(ax, "ÇIKARIM", "Otoregresif Metin Üretimi", 7)
+    header(ax, "INFERENCE", "Autoregressive Text Generation", 7)
 
     ax.text(5, 88,
-            "model.generate() her adımda son block_size token'ı bağlam olarak "
-            "alır, son pozisyonun\nolasılık dağılımından bir token örnekler ve "
-            "diziye ekler. Bu döngü kendi kendini besler.",
+            "model.generate() takes the last block_size tokens as context at "
+            "each step, samples one\ntoken from the last position's "
+            "probability distribution and appends it. The loop feeds itself.",
             fontsize=9.5, color=MUTED, va="top", linespacing=1.5)
 
     loop = [
-        ("idx[:, -block_size:]", ACCENT, "bağlamı kırp"),
-        ("logits = model(idx)", PINK, "ileri geçiş"),
-        ("logits[:, -1, :]", YELLOW, "son adıma odaklan"),
-        ("softmax → probs", GREEN, "olasılıklar"),
-        ("multinomial örnekle", ORANGE, "1 token seç"),
-        ("idx = cat(idx, next)", ACCENT2, "diziye ekle"),
+        ("idx[:, -block_size:]", ACCENT, "crop the context"),
+        ("logits = model(idx)", PINK, "forward pass"),
+        ("logits[:, -1, :]", YELLOW, "focus on last step"),
+        ("softmax → probs", GREEN, "probabilities"),
+        ("multinomial sample", ORANGE, "pick 1 token"),
+        ("idx = cat(idx, next)", ACCENT2, "append to sequence"),
     ]
     cx = 28
     for i, (txt, c, note) in enumerate(loop):
@@ -600,24 +571,22 @@ def page_generate(pdf):
         if i > 0:
             arrow(ax, (cx + 22, 78 - (i - 1) * 8 - 3), (cx + 22, yy + 3),
                   color=c, lw=2)
-    # geri besleme
     arrow(ax, (cx, 78 - 5 * 8), (20, 78 - 5 * 8), color=MUTED, style="-")
     arrow(ax, (20, 78 - 5 * 8), (20, 78), color=MUTED, style="-")
     arrow(ax, (20, 78), (cx, 78), color=MUTED)
-    ax.text(18, 56, "max_new_tokens kez", fontsize=8, color=MUTED,
+    ax.text(18, 56, "max_new_tokens times", fontsize=8, color=MUTED,
             rotation=90, va="center")
 
-    # özet kutusu
     box(ax, 5, 8, 90, 20, "", fc="#1b2a3a", ec=ACCENT, rounding=0.03, lw=1.6)
-    ax.text(9, 24.5, "Neden Önemli?", fontsize=12, color=ACCENT,
+    ax.text(9, 24.5, "Why It Matters", fontsize=12, color=ACCENT,
             weight="bold")
     ax.text(9, 21,
-            "Bu küçük model, modern büyük dil modellerinin (GPT) tam olarak "
-            "aynı çekirdek mekanizmasını içerir:\n"
-            "token + pozisyon gömme, causal self-attention, multi-head, "
-            "residual bloklar ve otoregresif üretim.\n"
-            "Ölçek dışında temel mimari aynıdır — bu yüzden \"sıfırdan GPT\" "
-            "öğrenmek için ideal bir başlangıçtır.",
+            "This tiny model contains the exact same core mechanism as modern "
+            "large language models (GPT):\n"
+            "token + position embedding, causal self-attention, multi-head, "
+            "residual blocks and autoregressive generation.\n"
+            "Apart from scale, the fundamental architecture is identical — "
+            "which makes it an ideal way to learn \"GPT from scratch\".",
             fontsize=9.5, color=INK, va="top", linespacing=1.6)
 
     footer(ax, 8)
@@ -625,7 +594,7 @@ def page_generate(pdf):
 
 
 def main():
-    out = Path(__file__).parent / "nano-gpt-dokumantasyon.pdf"
+    out = Path(__file__).parent / "nano-gpt-documentation.pdf"
     with PdfPages(out) as pdf:
         page_cover(pdf)
         page_pipeline(pdf)
@@ -636,10 +605,10 @@ def main():
         page_training(pdf)
         page_generate(pdf)
         d = pdf.infodict()
-        d["Title"] = "nano-gpt — Karakter Seviyeli GPT Dokümantasyonu"
+        d["Title"] = "nano-gpt — Character-Level GPT Documentation"
         d["Author"] = "gocenalper"
-        d["Subject"] = "Sıfırdan Transformer / GPT uygulaması"
-    print(f"PDF yazıldı: {out}")
+        d["Subject"] = "A Transformer / GPT implementation from scratch"
+    print(f"PDF written: {out}")
 
 
 if __name__ == "__main__":

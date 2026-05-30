@@ -2,10 +2,10 @@
 
 # 🧠 nano-gpt
 
-### Sıfırdan Karakter Seviyeli GPT (Transformer)
+### A Character-Level GPT (Transformer) From Scratch
 
-Andrej Karpathy'nin **"Let's build GPT"** dersinin PyTorch ile birebir, bol **Türkçe yorumlu** uygulaması.
-Bir decoder-only Transformer'ın tüm parçaları: token & pozisyon gömme, causal self-attention, multi-head, residual bloklar ve otoregresif metin üretimi.
+A faithful, heavily-commented PyTorch implementation of Andrej Karpathy's **"Let's build GPT"** lecture.
+Every part of a decoder-only Transformer: token & position embeddings, causal self-attention, multi-head, residual blocks and autoregressive text generation.
 
 ![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
@@ -14,83 +14,83 @@ Bir decoder-only Transformer'ın tüm parçaları: token & pozisyon gömme, caus
 
 <a href="https://colab.research.google.com/github/gocenalper/nano-gpt/blob/main/gpt_scratch.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
 
-📄 **[Detaylı görsel dokümantasyon (PDF) →](docs/nano-gpt-dokumantasyon.pdf)**
+📄 **[Detailed visual documentation (PDF) →](docs/nano-gpt-documentation.pdf)**
 
 </div>
 
 ---
 
-## 📑 İçindekiler
+## 📑 Table of Contents
 
-- [Proje Hakkında](#-proje-hakkında)
-- [Hızlı Başlangıç](#-hızlı-başlangıç)
-- [Uçtan Uca Akış](#-uçtan-uca-akış)
-- [Mimari](#-mimari)
+- [About](#-about)
+- [Quick Start](#-quick-start)
+- [End-to-End Flow](#-end-to-end-flow)
+- [Architecture](#-architecture)
   - [Self-Attention Head](#self-attention-head)
-  - [Transformer Bloğu](#transformer-bloğu)
+  - [Transformer Block](#transformer-block)
   - [BigramLanguageModel](#bigramlanguagemodel)
-- [Veri Katmanı](#-veri-katmanı)
-- [Eğitim](#-eğitim)
-- [Metin Üretimi](#-metin-üretimi)
-- [Hiperparametreler](#-hiperparametreler)
-- [Dokümantasyon PDF'i](#-dokümantasyon-pdfi)
-- [Proje Yapısı](#-proje-yapısı)
-- [Teşekkür](#-teşekkür)
+- [Data Layer](#-data-layer)
+- [Training](#-training)
+- [Text Generation](#-text-generation)
+- [Hyperparameters](#-hyperparameters)
+- [Documentation PDF](#-documentation-pdf)
+- [Project Structure](#-project-structure)
+- [Acknowledgements](#-acknowledgements)
 
 ---
 
-## 🎯 Proje Hakkında
+## 🎯 About
 
-Bu repo, modern büyük dil modellerinin (GPT) çekirdek mimarisini **olabilecek en sade hâliyle** gösterir. Ölçek dışında temel mekanizma aynıdır:
+This repo demonstrates the core architecture of modern large language models (GPT) in the **simplest possible form**. Apart from scale, the fundamental mechanism is identical:
 
-> **token + pozisyon gömme → causal self-attention → multi-head → residual bloklar → otoregresif üretim**
+> **token + position embedding → causal self-attention → multi-head → residual blocks → autoregressive generation**
 
-Bu yüzden "sıfırdan GPT" öğrenmek için ideal bir başlangıç noktasıdır. Tüm kod tek bir notebook'ta (`gpt_scratch.ipynb`), her satırı Türkçe yorumlarla açıklanmış olarak bulunur.
+That makes it an ideal starting point for learning "GPT from scratch". All the code lives in a single notebook (`gpt_scratch.ipynb`), with every line explained through inline comments.
 
-**Öne çıkan özellikler:**
+**Highlights:**
 
-- ✅ Karakter seviyeli tokenizer (BPE yok, vocab ≈ 65 → kolay hata ayıklama)
-- ✅ Saf PyTorch ile sıfırdan self-attention & multi-head
-- ✅ Pre-LayerNorm + residual bağlantılı Transformer blokları
-- ✅ Dropout ile düzenlileştirme
-- ✅ AdamW + **Cosine Annealing** öğrenme oranı planlayıcısı
-- ✅ **Early Stopping** ile aşırı öğrenme koruması
-- ✅ **Weights & Biases** ile canlı deney takibi
+- ✅ Character-level tokenizer (no BPE, vocab ≈ 65 → easy debugging)
+- ✅ Self-attention & multi-head built from scratch in pure PyTorch
+- ✅ Transformer blocks with Pre-LayerNorm + residual connections
+- ✅ Regularization with dropout
+- ✅ AdamW + **Cosine Annealing** learning-rate scheduler
+- ✅ **Early Stopping** to guard against overfitting
+- ✅ Live experiment tracking with **Weights & Biases**
 
 ---
 
-## 🚀 Hızlı Başlangıç
+## 🚀 Quick Start
 
 ```bash
-# 1) Depoyu klonla
+# 1) Clone the repository
 git clone https://github.com/gocenalper/nano-gpt.git
 cd nano-gpt
 
-# 2) Bağımlılıkları kur
+# 2) Install dependencies
 pip install torch wandb
 
-# 3) Notebook'u aç ve hücreleri sırayla çalıştır
+# 3) Open the notebook and run the cells in order
 jupyter notebook gpt_scratch.ipynb
 ```
 
-> 💡 Veri kümesi (`data/input.txt`) ilk çalıştırmada otomatik indirilir.
-> GPU varsa eğitim otomatik olarak `cuda` üzerinde çalışır.
+> 💡 The dataset (`data/input.txt`) is downloaded automatically on first run.
+> Training runs on `cuda` automatically if a GPU is available.
 
-Alternatif olarak yukarıdaki **"Open In Colab"** rozetiyle doğrudan tarayıcıda (GPU ile) çalıştırabilirsiniz.
+Alternatively, use the **"Open In Colab"** badge above to run it straight in the browser (with a GPU).
 
 ---
 
-## 🔄 Uçtan Uca Akış
+## 🔄 End-to-End Flow
 
-Ham metinden üretilen yeni metne kadar tüm boru hattı. Her kutu, notebook'taki bir fonksiyona karşılık gelir.
+The full pipeline, from raw text to freshly generated text. Each box maps to a function in the notebook.
 
 ```mermaid
 flowchart TD
     A["📚 Tiny Shakespeare<br/><i>download_dataset()</i>"] --> B["🔤 Tokenizer / stoi-itos<br/><i>build_tokenizer()</i>"]
-    B --> C["✂️ Train / Val tensörleri<br/><i>make_splits()</i>"]
+    B --> C["✂️ Train / Val tensors<br/><i>make_splits()</i>"]
     C --> D["📦 Batch (B, T)<br/><i>get_batch()</i>"]
-    D --> E["🧠 GPT Modeli<br/><i>BigramLanguageModel</i>"]
-    E --> F["✨ Üretilen Metin<br/><i>model.generate()</i>"]
+    D --> E["🧠 GPT Model<br/><i>BigramLanguageModel</i>"]
+    E --> F["✨ Generated Text<br/><i>model.generate()</i>"]
 
     style A fill:#f0883e,stroke:#fff,color:#000
     style B fill:#f778ba,stroke:#fff,color:#000
@@ -100,33 +100,33 @@ flowchart TD
     style F fill:#bc8cff,stroke:#fff,color:#000
 ```
 
-| Aşama | Fonksiyon | Açıklama |
+| Stage | Function | Description |
 |-------|-----------|----------|
-| 1. İndirme | `download_dataset()` | Karpathy'nin char-rnn deposundan ~1.1 MB ham metin indirir. |
-| 2. Tokenizasyon | `build_tokenizer()` | Her benzersiz karakter bir tam sayıya eşlenir (`encode` / `decode`). |
-| 3. Bölme | `make_splits()` | Metin tek bir `long` tensöre çevrilir, %90 train / %10 val. |
-| 4. Batch | `get_batch()` | Rastgele başlangıçlardan `(context, hedef)` çiftleri çekilir. |
-| 5. Model | `BigramLanguageModel` | Embedding → N× Transformer Blok → LayerNorm → `lm_head`. |
-| 6. Üretim | `model.generate()` | Otoregresif örnekleme ile karakter karakter yeni metin. |
+| 1. Download | `download_dataset()` | Downloads ~1.1 MB of raw text from Karpathy's char-rnn repo. |
+| 2. Tokenize | `build_tokenizer()` | Maps every unique character to an integer (`encode` / `decode`). |
+| 3. Split | `make_splits()` | Converts text to a single `long` tensor, 90% train / 10% val. |
+| 4. Batch | `get_batch()` | Pulls `(context, target)` pairs from random starting points. |
+| 5. Model | `BigramLanguageModel` | Embedding → N× Transformer Block → LayerNorm → `lm_head`. |
+| 6. Generate | `model.generate()` | Autoregressive sampling, character by character. |
 
 ---
 
-## 🏗️ Mimari
+## 🏗️ Architecture
 
 ### Self-Attention Head
 
-Her head, girdiyi üç projeksiyona ayırır: **Query**, **Key**, **Value**. Skorlar ölçeklenir, causal mask ile gelecek maskelenir, softmax ile ağırlığa çevrilir ve Value'lar toplanır.
+Each head splits the input into three projections: **Query**, **Key**, **Value**. Scores are scaled, the future is hidden with a causal mask, softmax turns them into weights, and the Values are summed.
 
 ```mermaid
 flowchart LR
     X["x (B,T,C)"] --> Q["Query<br/>q = Wq·x"]
     X --> K["Key<br/>k = Wk·x"]
     X --> V["Value<br/>v = Wv·x"]
-    Q --> S["skorlar<br/>q · kᵀ × d^-0.5"]
+    Q --> S["scores<br/>q · kᵀ × d^-0.5"]
     K --> S
     S --> M["causal mask (tril)"]
     M --> SM["softmax + dropout"]
-    SM --> O["çıktı<br/>wei · v"]
+    SM --> O["output<br/>wei · v"]
     V --> O
 
     style S fill:#bc8cff,color:#000
@@ -135,10 +135,10 @@ flowchart LR
     style O fill:#58a6ff,color:#000
 ```
 
-**Causal mask** — bir token yalnızca kendisini ve geçmişi görebilir (gelecek = `-∞`):
+**Causal mask** — a token may only see itself and the past (future = `-∞`):
 
 ```
-        bakılan →
+        attended →
         t0  t1  t2  t3  t4
    t0 [  1   0   0   0   0 ]
    t1 [  1   1   0   0   0 ]
@@ -149,12 +149,12 @@ flowchart LR
 
 ```python
 class Head(nn.Module):
-    """ Bir tane self-attention head """
+    """ A single self-attention head """
     def forward(self, x):
         B, T, C = x.shape
         k = self.key(x)
         q = self.query(x)
-        wei = q @ k.transpose(-2, -1) * (self.head_size**-0.5)        # ölçekli skor
+        wei = q @ k.transpose(-2, -1) * (self.head_size**-0.5)        # scaled scores
         wei = wei.masked_fill(self.tril[:T, :T] == 0, float('-inf'))  # causal
         wei = F.softmax(wei, dim=-1)
         wei = self.dropout(wei)
@@ -162,9 +162,9 @@ class Head(nn.Module):
         return wei @ v
 ```
 
-### Transformer Bloğu
+### Transformer Block
 
-İki alt-katman: **Multi-Head Self-Attention** (haberleşme) ve **Feed-Forward** (hesaplama). Her ikisinde **Pre-LayerNorm** ve **residual** bağlantı uygulanır:
+Two sub-layers: **Multi-Head Self-Attention** (communicate) and **Feed-Forward** (compute). Both use **Pre-LayerNorm** and a **residual** connection:
 
 ```
 x = x + Dropout( MultiHeadAttention( LayerNorm(x) ) )
@@ -173,7 +173,7 @@ x = x + Dropout( FeedForward( LayerNorm(x) ) )
 
 ```mermaid
 flowchart TD
-    IN["girdi x"] --> LN1["LayerNorm (ln1)"]
+    IN["input x"] --> LN1["LayerNorm (ln1)"]
     LN1 --> MHA["Multi-Head Self-Attention"]
     MHA --> D1["Dropout"]
     D1 --> ADD1(("+"))
@@ -183,7 +183,7 @@ flowchart TD
     FFN --> D2["Dropout"]
     D2 --> ADD2(("+"))
     ADD1 -. residual .-> ADD2
-    ADD2 --> OUT["çıktı"]
+    ADD2 --> OUT["output"]
 
     style MHA fill:#58a6ff,color:#000
     style FFN fill:#bc8cff,color:#000
@@ -193,13 +193,13 @@ flowchart TD
 
 ### BigramLanguageModel
 
-Üst düzey ileri geçiş:
+High-level forward pass:
 
 ```mermaid
 flowchart TD
     A["idx (B, T)"] --> B["Token Embedding<br/>+ Position Embedding"]
     B --> C["Dropout"]
-    C --> D["Transformer Blok × 6"]
+    C --> D["Transformer Block × 6"]
     D --> E["Final LayerNorm (ln_f)"]
     E --> F["lm_head (Linear → vocab)"]
     F --> G["logits → softmax"]
@@ -211,25 +211,25 @@ flowchart TD
     style G fill:#bc8cff,color:#000
 ```
 
-| Bileşen | Görevi |
+| Component | Role |
 |---------|--------|
-| `token_embedding_table` | Her token id'sini `n_embed` boyutlu vektöre çevirir. |
-| `position_embedding_table` | Her pozisyona (0…block_size) bir vektör atar. |
-| `blocks` | `n_layer` adet Transformer bloğu (Sequential). |
+| `token_embedding_table` | Maps each token id to an `n_embed`-dim vector. |
+| `position_embedding_table` | Assigns a vector to each position (0…block_size). |
+| `blocks` | `n_layer` Transformer blocks (Sequential). |
 | `ln_f` | Final LayerNorm. |
-| `lm_head` | `n_embed → vocab_size` projeksiyonu (logitler). |
+| `lm_head` | `n_embed → vocab_size` projection (logits). |
 
 ---
 
-## 🗂️ Veri Katmanı
+## 🗂️ Data Layer
 
-**Tokenizer** — karakter seviyeli, çift yönlü eşleme:
+**Tokenizer** — character-level, bidirectional mapping:
 
 ```
 "Hi!"  --encode-->  [20, 47, 2]  --decode-->  "Hi!"
 ```
 
-**get_batch** — `block_size` uzunluğundaki `x` dilimi, 1 sağa kaymış `y` ile eşleşir. Tek dilim, `T` adet bağımsız `(context, hedef)` örneği taşır:
+**get_batch** — a `block_size`-long `x` slice is paired with `y`, shifted one to the right. A single slice carries `T` independent `(context, target)` examples:
 
 ```
 x :  F  i  r  s  t     C
@@ -237,20 +237,20 @@ x :  F  i  r  s  t     C
 y :  i  r  s  t     C  i
 ```
 
-**Tensör şekilleri:**
+**Tensor shapes:**
 
-| Tensör | Şekil | Not |
+| Tensor | Shape | Note |
 |--------|-------|-----|
 | `x`, `y` | `(B, T)` | B = batch_size, T = block_size |
 | `token_embedding` | `(B, T, C)` | C = n_embed |
-| `logits` | `(B, T, vocab_size)` | her pozisyon için skor |
-| `loss` | skaler | cross-entropy |
+| `logits` | `(B, T, vocab_size)` | score for each position |
+| `loss` | scalar | cross-entropy |
 
 ---
 
-## 🎓 Eğitim
+## 🎓 Training
 
-Tek bir iterasyon döngüsü:
+A single iteration loop:
 
 ```mermaid
 flowchart LR
@@ -258,7 +258,7 @@ flowchart LR
     B --> C["loss.backward()"]
     C --> D["optimizer.step()"]
     D --> E["scheduler.step()"]
-    E -. tekrarla .-> A
+    E -. repeat .-> A
 
     style A fill:#3fb950,color:#000
     style B fill:#58a6ff,color:#000
@@ -267,27 +267,27 @@ flowchart LR
     style E fill:#bc8cff,color:#000
 ```
 
-**Düzenlileştirme & izleme:**
+**Regularization & monitoring:**
 
-- 🔍 **`estimate_loss`** — her 500 adımda eval modunda train/val loss tahmini.
-- 🛑 **Early Stopping** — val loss 5 değerlendirme boyunca düşmezse eğitim durur.
-- 📉 **Cosine Annealing LR** — öğrenme oranı `5e-4 → 1e-5` yumuşakça azalır.
-- 📊 **Weights & Biases** — `train_loss`, `val_loss`, `learning_rate` canlı loglanır.
+- 🔍 **`estimate_loss`** — estimates train/val loss in eval mode every 500 steps.
+- 🛑 **Early Stopping** — training stops if val loss stalls for 5 evaluations.
+- 📉 **Cosine Annealing LR** — learning rate decays smoothly `5e-4 → 1e-5`.
+- 📊 **Weights & Biases** — `train_loss`, `val_loss`, `learning_rate` logged live.
 
 ---
 
-## ✨ Metin Üretimi
+## ✨ Text Generation
 
-`model.generate()` otoregresif çalışır — her adımda son `block_size` token'ı bağlam alır, son pozisyonun olasılık dağılımından örnekler ve diziye ekler:
+`model.generate()` runs autoregressively — at each step it takes the last `block_size` tokens as context, samples from the last position's probability distribution and appends it:
 
 ```mermaid
 flowchart TD
-    A["idx[:, -block_size:]<br/>bağlamı kırp"] --> B["logits = model(idx)"]
-    B --> C["logits[:, -1, :]<br/>son adıma odaklan"]
+    A["idx[:, -block_size:]<br/>crop the context"] --> B["logits = model(idx)"]
+    B --> C["logits[:, -1, :]<br/>focus on last step"]
     C --> D["softmax → probs"]
-    D --> E["multinomial örnekle"]
+    D --> E["multinomial sample"]
     E --> F["idx = cat(idx, next)"]
-    F -. max_new_tokens kez .-> A
+    F -. max_new_tokens times .-> A
 
     style A fill:#58a6ff,color:#000
     style D fill:#3fb950,color:#000
@@ -302,63 +302,63 @@ print(decode(model.generate(context, max_new_tokens=500)[0].tolist()))
 
 ---
 
-## ⚙️ Hiperparametreler
+## ⚙️ Hyperparameters
 
-Notebook'taki **HERO RUN v4** konfigürasyonu:
+The **HERO RUN v4** configuration from the notebook:
 
-| Parametre | Değer | Açıklama |
+| Parameter | Value | Description |
 |-----------|-------|----------|
-| `block_size` | `256` | Bağlam (context) uzunluğu |
-| `batch_size` | `64` | Paralel dizi sayısı |
-| `n_embed` | `256` | Gömme / model boyutu |
-| `n_head` | `8` | Attention head sayısı |
-| `n_layer` | `6` | Transformer blok sayısı |
-| `dropout_rate` | `0.2` | Dropout oranı |
-| `lr` | `5e-4` | Başlangıç öğrenme oranı |
-| `epochs` | `10000` | Maksimum iterasyon |
-| `weight_decay` | `1e-3` | AdamW ağırlık çürümesi |
+| `block_size` | `256` | Context length |
+| `batch_size` | `64` | Number of parallel sequences |
+| `n_embed` | `256` | Embedding / model dimension |
+| `n_head` | `8` | Number of attention heads |
+| `n_layer` | `6` | Number of Transformer blocks |
+| `dropout_rate` | `0.2` | Dropout rate |
+| `lr` | `5e-4` | Initial learning rate |
+| `epochs` | `10000` | Maximum iterations |
+| `weight_decay` | `1e-3` | AdamW weight decay |
 
 ---
 
-## 📄 Dokümantasyon PDF'i
+## 📄 Documentation PDF
 
-Tüm mimariyi görsel diyagramlarla anlatan, baskıya uygun çok sayfalı bir PDF üretilebilir:
+A multi-page, print-ready PDF that explains the whole architecture with visual diagrams can be generated:
 
 ```bash
 pip install matplotlib
 python docs/generate_pdf.py
-# → docs/nano-gpt-dokumantasyon.pdf
+# → docs/nano-gpt-documentation.pdf
 ```
 
-PDF, kod gerektirmeden (yalnızca `matplotlib`) tamamen vektörel olarak çizilir; kapak, akış şeması, mimari diyagramları, attention mekanizması, eğitim döngüsü ve üretim adımlarını içerir.
+The PDF is drawn entirely as vectors using only `matplotlib` (no code execution required); it covers the cover page, pipeline, data layer, architecture diagrams, the attention mechanism, the training loop and the generation steps.
 
 ---
 
-## 📁 Proje Yapısı
+## 📁 Project Structure
 
 ```
 nano-gpt/
-├── gpt_scratch.ipynb              # Ana notebook (model + eğitim + üretim)
-├── README.md                      # Bu dosya
+├── gpt_scratch.ipynb              # Main notebook (model + training + generation)
+├── README.md                      # This file
 ├── docs/
-│   ├── generate_pdf.py            # Görsel dokümantasyon PDF üreteci
-│   └── nano-gpt-dokumantasyon.pdf # Üretilen PDF
+│   ├── generate_pdf.py            # Visual documentation PDF generator
+│   └── nano-gpt-documentation.pdf # Generated PDF
 └── data/
-    └── input.txt                  # Tiny Shakespeare (otomatik indirilir)
+    └── input.txt                  # Tiny Shakespeare (downloaded automatically)
 ```
 
 ---
 
-## 🙏 Teşekkür
+## 🙏 Acknowledgements
 
-- **[Andrej Karpathy](https://github.com/karpathy)** — orijinal [nanoGPT](https://github.com/karpathy/nanoGPT) ve "Let's build GPT" dersi.
-- **Tiny Shakespeare** veri kümesi — [char-rnn](https://github.com/karpathy/char-rnn) deposu.
+- **[Andrej Karpathy](https://github.com/karpathy)** — the original [nanoGPT](https://github.com/karpathy/nanoGPT) and the "Let's build GPT" lecture.
+- **Tiny Shakespeare** dataset — the [char-rnn](https://github.com/karpathy/char-rnn) repo.
 - *"Attention Is All You Need"* — Vaswani et al., 2017.
 
 <div align="center">
 
 ---
 
-⭐ Faydalı bulduysanız repoyu yıldızlamayı unutmayın!
+⭐ If you find this useful, don't forget to star the repo!
 
 </div>
