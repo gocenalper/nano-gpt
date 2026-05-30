@@ -1,9 +1,5 @@
 name: Mirror to GitLab
 
-# GitHub -> GitLab tek yönlü ayna.
-# Her push'ta (tüm branch/tag) ve manuel tetiklemede çalışır.
-# GitLab projesi yoksa API ile BOŞ oluşturur (README yok -> divergence yok),
-# sonra normal push ile eşitler.
 on:
   push:
     branches: ['**']
@@ -31,7 +27,7 @@ jobs:
           if [ "$CODE" = "200" ]; then
             echo "GitLab projesi mevcut."
           else
-            echo "GitLab projesi yok (HTTP $CODE), boş olarak oluşturuluyor..."
+            echo "GitLab projesi yok (HTTP $CODE), boş oluşturuluyor..."
             curl -s --fail --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
               --data "name=${REPO_NAME}" \
               --data "path=${REPO_NAME}" \
@@ -48,7 +44,6 @@ jobs:
           set -euo pipefail
           REPO_NAME="${GITHUB_REPOSITORY#*/}"
           GITLAB_URL="https://oauth2:${GITLAB_TOKEN}@gitlab.com/gocenalper/${REPO_NAME}.git"
-          # Boş projeye ilk push main'i oluşturur; sonrakiler fast-forward.
           git push "$GITLAB_URL" "HEAD:${GITHUB_REF_NAME}"
           git push --tags "$GITLAB_URL" || true
           echo "Mirrored ${GITHUB_REPOSITORY} -> gitlab.com/gocenalper/${REPO_NAME}"
