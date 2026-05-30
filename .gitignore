@@ -1,0 +1,12 @@
+# Veri (otomatik indirilir)
+data/
+
+# Python
+__pycache__/
+*.pyc
+
+# Notebook checkpoints
+.ipynb_checkpoints/
+
+# W&B
+wandb/
