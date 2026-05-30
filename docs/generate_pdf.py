@@ -593,6 +593,99 @@ def page_generate(pdf):
     pdf.savefig(fig); plt.close(fig)
 
 
+# ===========================================================================
+# PAGE 9 — RESULTS & THE BIGRAM LIMIT
+# ===========================================================================
+def page_results(pdf):
+    fig, ax = new_page()
+    header(ax, "RESULTS", "Results & the Bigram Limit", 8)
+
+    ax.text(5, 88,
+            "The notebook ships without stored run outputs, so the numbers "
+            "below are reference values\nfrom Karpathy's lecture for the same "
+            "char-level Tiny Shakespeare setup — not this run's logs.",
+            fontsize=9, color=MUTED, va="top", linespacing=1.5, style="italic")
+
+    # --- Loss comparison bar chart ---
+    ax.text(5, 80, "Validation Loss (cross-entropy, lower is better)",
+            fontsize=11, color=ACCENT, weight="bold")
+
+    bars = [
+        ("Random init", 4.17, MUTED, "= ln(65), pure chance over 65 chars"),
+        ("Pure bigram", 2.50, ORANGE, "1-char context only -> hits a floor"),
+        ("This Transformer", 1.50, GREEN, "256-char context via attention"),
+    ]
+    base_x, base_y = 10, 56
+    max_w = 64       # bar width for loss = 4.5
+    scale = max_w / 4.5
+    for i, (name, val, c, note) in enumerate(bars):
+        yy = base_y + (2 - i) * 6.5
+        ax.text(base_x - 1, yy + 1.4, name, fontsize=9.5, color=INK,
+                weight="bold", ha="left", va="center")
+        ax.add_patch(Rectangle((base_x, yy), max_w, 2.6, facecolor=PANEL,
+                     edgecolor=GRID, lw=1))
+        ax.add_patch(Rectangle((base_x, yy), val * scale, 2.6, facecolor=c,
+                     edgecolor="none"))
+        ax.text(base_x + val * scale + 1.5, yy + 1.3, f"{val:.2f}",
+                fontsize=9.5, color=c, weight="bold", va="center")
+        ax.text(base_x, yy - 1.6, note, fontsize=7.5, color=MUTED, va="center")
+    ax.text(base_x, base_y - 3.2,
+            "Reference: the scaled char-level GPT in the lecture reaches "
+            "val loss ≈ 1.48.",
+            fontsize=7.5, color=MUTED, style="italic")
+
+    # --- Why the pure bigram is limited ---
+    box(ax, 5, 22, 43, 24, "", fc=PANEL, ec=ORANGE, rounding=0.03, lw=1.6)
+    ax.text(8, 43, "Why the Bigram Stalls", fontsize=10.5, color=ORANGE,
+            weight="bold")
+    lim = [
+        ("1-token context", "next char from the previous one only"),
+        ("No order info", "position is ignored entirely"),
+        ("Lookup table", "vocab×vocab, no composition"),
+        ("Loss floor", "plateaus around 2.5"),
+        ("Letter-soup", "output never forms real words"),
+    ]
+    yy = 39
+    for k, v in lim:
+        ax.text(8, yy, "•", fontsize=10, color=ORANGE, weight="bold")
+        ax.text(10, yy, k, fontsize=8.6, color=INK, weight="bold", va="center")
+        ax.text(10, yy - 1.8, v, fontsize=7.6, color=MUTED, va="center")
+        yy -= 4.0
+
+    # --- How the Transformer fixes it ---
+    box(ax, 52, 22, 43, 24, "", fc=PANEL, ec=GREEN, rounding=0.03, lw=1.6)
+    ax.text(55, 43, "How the Transformer Fixes It", fontsize=10.5,
+            color=GREEN, weight="bold")
+    fix = [
+        ("Self-attention", "context up to block_size (256)"),
+        ("Position embed.", "order now matters"),
+        ("Multi-head", "many relation types at once"),
+        ("Residual blocks", "depth + non-linear compute"),
+        ("Result", "loss ≈ 1.5, Shakespeare-like text"),
+    ]
+    yy = 39
+    for k, v in fix:
+        ax.text(55, yy, "✓", fontsize=9, color=GREEN, weight="bold")
+        ax.text(57.5, yy, k, fontsize=8.6, color=INK, weight="bold",
+                va="center")
+        ax.text(57.5, yy - 1.8, v, fontsize=7.6, color=MUTED, va="center")
+        yy -= 4.0
+
+    # --- Naming note ---
+    box(ax, 5, 7, 90, 11, "", fc="#1b2a3a", ec=ACCENT, rounding=0.03, lw=1.4)
+    ax.text(9, 15, "Note on the name", fontsize=10, color=ACCENT,
+            weight="bold")
+    ax.text(9, 11.5,
+            "The class is called BigramLanguageModel — a leftover from the "
+            "lecture's starting point — but it is a\nfull decoder-only "
+            "Transformer. The \"bigram\" above is the bare-lookup baseline it "
+            "evolved beyond.",
+            fontsize=8.6, color=INK, va="center", linespacing=1.5)
+
+    footer(ax, 9)
+    pdf.savefig(fig); plt.close(fig)
+
+
 def main():
     out = Path(__file__).parent / "nano-gpt-documentation.pdf"
     with PdfPages(out) as pdf:
@@ -604,6 +697,7 @@ def main():
         page_attention(pdf)
         page_training(pdf)
         page_generate(pdf)
+        page_results(pdf)
         d = pdf.infodict()
         d["Title"] = "nano-gpt — Character-Level GPT Documentation"
         d["Author"] = "gocenalper"

@@ -32,6 +32,7 @@ Every part of a decoder-only Transformer: token & position embeddings, causal se
 - [Data Layer](#-data-layer)
 - [Training](#-training)
 - [Text Generation](#-text-generation)
+- [Results & Limitations](#-results--limitations)
 - [Hyperparameters](#-hyperparameters)
 - [Documentation PDF](#-documentation-pdf)
 - [Project Structure](#-project-structure)
@@ -299,6 +300,57 @@ flowchart TD
 context = torch.zeros((1, 1), dtype=torch.long, device=DEVICE)
 print(decode(model.generate(context, max_new_tokens=500)[0].tolist()))
 ```
+
+---
+
+## 📊 Results & Limitations
+
+> ⚠️ **A note on numbers:** the notebook ships **without stored run outputs**, so the figures
+> below are **reference values from Karpathy's lecture** for the same character-level Tiny
+> Shakespeare setup — they are benchmarks to expect, not logs measured from this exact run.
+> Your own numbers will vary slightly with seed, hardware and run length.
+
+### Loss comparison
+
+Validation loss is cross-entropy (negative log-likelihood) — **lower is better**:
+
+| Model | Val loss (ref.) | Why |
+|-------|:---------------:|-----|
+| Random initialization | ≈ **4.17** | `ln(65)` — pure chance over 65 characters |
+| Pure bigram baseline | ≈ **2.50** | conditions on a single previous character → hits a floor |
+| This Transformer | ≈ **1.50** | 256-char context via self-attention (lecture's scaled run reaches ≈ 1.48) |
+
+```
+Validation loss (lower is better)
+Random init      ████████████████████████████████████  4.17
+Pure bigram      ██████████████████████                2.50
+This Transformer █████████████                         1.50
+```
+
+### Qualitative output
+
+- **Pure bigram** → letter-soup that respects single-character frequencies but never forms real words.
+- **This Transformer** → Shakespeare-*looking* text: plausible words, character names and `NAME:` dialogue structure, line breaks and punctuation. It is stylistically convincing but semantically nonsensical — expected for a ~10M-parameter character model.
+
+### Why the (pure) bigram model is fundamentally limited
+
+The class is named `BigramLanguageModel` — a leftover from the **starting point** of Karpathy's lecture — but the code in this repo is actually a **full decoder-only Transformer**. The "bigram" is the bare-bones baseline it grew out of, and understanding *its* ceiling is the whole motivation for attention:
+
+1. **Context window of exactly one token.** A true bigram models `P(next char | previous char)`. It has no memory of anything before the immediately preceding character, so it cannot learn words, let alone sentences.
+2. **No notion of position or order.** Without position embeddings, *where* a token sits in the sequence is invisible.
+3. **It is just a lookup table.** A pure bigram is a `vocab × vocab` matrix — no hidden layers, no composition, no non-linear computation. Capacity is structurally capped.
+4. **The loss plateaus (~2.5).** Single-character context is information-theoretically insufficient for English/Shakespeare, so training saturates well above the Transformer's floor no matter how long you train.
+
+### How the Transformer breaks through that ceiling
+
+| Addition | Limitation it removes |
+|----------|-----------------------|
+| **Self-attention** | gives each token a *variable* context up to `block_size` (256 chars) instead of 1 |
+| **Position embeddings** | makes order/position meaningful |
+| **Multi-head attention** | learns several relationship types in parallel |
+| **Residual blocks + FFN** | adds depth and non-linear computation for compositional structure |
+
+The combined effect drops validation loss from ~2.5 down to ~1.5 and turns gibberish into coherent, Shakespeare-style prose — which is exactly the leap this project is meant to demonstrate.
 
 ---
 
